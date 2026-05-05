@@ -11,8 +11,8 @@ import { ApiError } from "@/lib/api"
 import { cn } from "@/lib/utils"
 
 const schema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  nik: z.string().min(1, "NIK wajib diisi").regex(/^\d+$/, "NIK harus berupa angka"),
+  password: z.string().min(8, "Password minimal 8 karakter"),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -175,24 +175,25 @@ export function LoginPage() {
                 </motion.div>
               )}
             </AnimatePresence>
-            {/* email */}
+            {/* NIK */}
             <motion.div
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
             >
               <label className={cn("block text-xs font-medium mb-1.5", isDark ? "text-white/50" : "text-gray-600")}>
-                Email
+                NIK
               </label>
               <input
-                {...register("email")}
-                type="email"
-                placeholder="you@example.com"
+                {...register("nik")}
+                type="text"
+                inputMode="numeric"
+                placeholder="Masukkan NIK Anda"
                 className={inputBase}
               />
-              {errors.email && (
+              {errors.nik && (
                 <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-1.5 text-xs text-red-400">
-                  {errors.email.message}
+                  {errors.nik.message}
                 </motion.p>
               )}
             </motion.div>

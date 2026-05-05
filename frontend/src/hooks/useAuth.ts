@@ -5,12 +5,13 @@ import { useAuthStore } from "@/stores/useAuthStore"
 
 type User = {
   id: number
+  nik: string
   name: string
   email: string
   createdAt: string
 }
 
-type LoginPayload = { email: string; password: string }
+type LoginPayload = { nik: string; password: string }
 type LoginResponse = { token: string; user: User }
 type MeResponse = { user: User }
 
