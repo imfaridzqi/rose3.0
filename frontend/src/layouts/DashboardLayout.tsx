@@ -5,6 +5,8 @@ import {
   Bell, Search, Menu, X, Sun, Moon, LogOut, ChevronRight,
 } from "lucide-react"
 import { useUIStore } from "@/stores/useUIStore"
+import { useAuthStore } from "@/stores/useAuthStore"
+import { useLogout, useCurrentUser } from "@/hooks/useAuth"
 import { cn } from "@/lib/utils"
 
 type NavItem = { label: string; icon: React.ElementType }
@@ -19,6 +21,10 @@ const NAV: NavItem[] = [
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { theme, toggleTheme } = useUIStore()
   const isDark = theme === "dark"
+  const user = useAuthStore((s) => s.user)
+  const { data: currentUser } = useCurrentUser()
+  const logout = useLogout()
+  const displayUser = currentUser ?? user
 
   // true = mobile viewport (< 768px)
   const [isMobile, setIsMobile] = useState(false)
@@ -141,6 +147,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         </button>
 
         <button
+          onClick={logout}
           className={cn(
             "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150",
             isDark ? "text-white/50 hover:text-red-400 hover:bg-red-500/10" : "text-gray-500 hover:text-red-500 hover:bg-red-50"
@@ -155,6 +162,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             )}
           </AnimatePresence>
         </button>
+
+        {/* user info */}
+        {(sidebarOpen || isMobile) && displayUser && (
+          <div className={cn("mt-2 px-3 py-2.5 rounded-xl border", isDark ? "border-white/[0.06] bg-white/[0.03]" : "border-black/[0.05] bg-black/[0.02]")}>
+            <p className={cn("text-xs font-medium truncate", isDark ? "text-white/80" : "text-gray-800")}>{displayUser.name}</p>
+            <p className={cn("text-[10px] truncate mt-0.5", isDark ? "text-white/35" : "text-gray-400")}>{displayUser.email}</p>
+          </div>
+        )}
       </div>
     </>
   )
@@ -270,8 +285,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-violet-500" />
             </button>
 
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-pink-500 flex items-center justify-center text-white text-xs font-semibold">
-              M
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-pink-500 flex items-center justify-center text-white text-xs font-semibold shrink-0">
+              {displayUser?.name?.[0]?.toUpperCase() ?? "?"}
             </div>
           </div>
         </header>

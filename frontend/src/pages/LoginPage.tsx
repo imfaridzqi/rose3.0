@@ -3,14 +3,16 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { motion, AnimatePresence } from "framer-motion"
-import { Eye, EyeOff, Sun, Moon, Loader2 } from "lucide-react"
+import { Eye, EyeOff, Sun, Moon, Loader2, AlertCircle } from "lucide-react"
 import { AuroraBackground } from "@/components/AuroraBackground"
 import { useUIStore } from "@/stores/useUIStore"
+import { useLogin } from "@/hooks/useAuth"
+import { ApiError } from "@/lib/api"
 import { cn } from "@/lib/utils"
 
 const schema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  nik: z.string().min(1, "NIK wajib diisi").regex(/^\d+$/, "NIK harus berupa angka"),
+  password: z.string().min(8, "Password minimal 8 karakter"),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -19,6 +21,9 @@ export function LoginPage() {
   const { theme, toggleTheme } = useUIStore()
   const isDark = theme === "dark"
   const [showPass, setShowPass] = useState(false)
+  const [serverError, setServerError] = useState<string | null>(null)
+
+  const login = useLogin()
 
   const {
     register,
@@ -27,8 +32,16 @@ export function LoginPage() {
   } = useForm<FormValues>({ resolver: zodResolver(schema) })
 
   const onSubmit = async (data: FormValues) => {
-    await new Promise((r) => setTimeout(r, 1200))
-    console.log("login →", data)
+    setServerError(null)
+    try {
+      await login.mutateAsync(data)
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setServerError(err.message)
+      } else {
+        setServerError("Unable to connect to server. Make sure the backend is running.")
+      }
+    }
   }
 
   const inputBase = cn(
@@ -148,24 +161,39 @@ export function LoginPage() {
           </motion.div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* email */}
+            {/* server error banner */}
+            <AnimatePresence>
+              {serverError && (
+                <motion.div
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  className="flex items-start gap-2 px-3 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs"
+                >
+                  <AlertCircle size={14} className="shrink-0 mt-0.5" />
+                  {serverError}
+                </motion.div>
+              )}
+            </AnimatePresence>
+            {/* NIK */}
             <motion.div
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
             >
               <label className={cn("block text-xs font-medium mb-1.5", isDark ? "text-white/50" : "text-gray-600")}>
-                Email
+                NIK
               </label>
               <input
-                {...register("email")}
-                type="email"
-                placeholder="you@example.com"
+                {...register("nik")}
+                type="text"
+                inputMode="numeric"
+                placeholder="Masukkan NIK Anda"
                 className={inputBase}
               />
-              {errors.email && (
+              {errors.nik && (
                 <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-1.5 text-xs text-red-400">
-                  {errors.email.message}
+                  {errors.nik.message}
                 </motion.p>
               )}
             </motion.div>
@@ -212,7 +240,7 @@ export function LoginPage() {
             {/* submit */}
             <motion.button
               type="submit"
-              disabled={isSubmitting}
+              disabled={login.isPending}
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
@@ -225,8 +253,8 @@ export function LoginPage() {
                   : "bg-violet-600 hover:bg-violet-500 text-white disabled:bg-violet-300"
               )}
             >
-              {isSubmitting && <Loader2 size={15} className="animate-spin" />}
-              {isSubmitting ? "Signing in…" : "Sign in"}
+              {login.isPending && <Loader2 size={15} className="animate-spin" />}
+              {login.isPending ? "Signing in…" : "Sign in"}
             </motion.button>
           </form>
 
