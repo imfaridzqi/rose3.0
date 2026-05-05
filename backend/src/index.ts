@@ -4,6 +4,7 @@ import { cors } from "@elysiajs/cors"
 import pino from "pino"
 import { usersRoute } from "./routes/users"
 import { authRoute } from "./routes/auth"
+import { jadwalsRoute } from "./routes/jadwals"
 
 const logger = pino({ level: "info" })
 
@@ -18,6 +19,7 @@ const app = new Elysia()
   .get("/health", () => ({ status: "ok" }))
   .use(authRoute)
   .use(usersRoute)
+  .use(jadwalsRoute)
   .listen(Number(process.env.PORT) || 3000)
 
 logger.info(`Server running at http://localhost:${app.server?.port}`)
