@@ -6,6 +6,9 @@ export type JadwalEntry = {
   nmTeam: string
   nmShift: string
   kodeShift: string
+  jamMasuk: string | null
+  jamKeluar: string | null
+  ket: string | null
 }
 
 export type TodayJadwalResponse = {
@@ -14,6 +17,7 @@ export type TodayJadwalResponse = {
   pagi: JadwalEntry[]
   siang: JadwalEntry[]
   malam: JadwalEntry[]
+  list: JadwalEntry[]
 }
 
 export function useTodayJadwal() {

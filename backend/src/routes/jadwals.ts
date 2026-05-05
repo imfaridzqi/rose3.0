@@ -13,6 +13,9 @@ export const jadwalsRoute = new Elysia({ prefix: "/jadwals" })
         nmTeam:    teams.nmTeam,
         nmShift:   shifts.nmShift,
         kodeShift: shifts.kodeShift,
+        jamMasuk:  shifts.jamMasuk,
+        jamKeluar: shifts.jamKeluar,
+        ket:       jadwals.ket,
       })
       .from(jadwals)
       .innerJoin(users,  eq(users.id,  jadwals.userId))
@@ -31,5 +34,6 @@ export const jadwalsRoute = new Elysia({ prefix: "/jadwals" })
       pagi,
       siang,
       malam,
+      list:  rows,
     }
   })
