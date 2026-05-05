@@ -130,23 +130,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       {/* bottom actions */}
       <div className="px-2 pb-4 pt-4 border-t border-inherit space-y-1 shrink-0">
         <button
-          onClick={toggleTheme}
-          className={cn(
-            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150",
-            isDark ? "text-white/50 hover:text-white/80 hover:bg-white/5" : "text-gray-500 hover:text-gray-900 hover:bg-black/5"
-          )}
-        >
-          {isDark ? <Sun size={18} className="shrink-0" /> : <Moon size={18} className="shrink-0" />}
-          <AnimatePresence>
-            {(sidebarOpen || isMobile) && (
-              <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="whitespace-nowrap">
-                {isDark ? "Light mode" : "Dark mode"}
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </button>
-
-        <button
           onClick={logout}
           className={cn(
             "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150",
@@ -283,6 +266,26 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             )}>
               <Bell size={18} />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-violet-500" />
+            </button>
+
+            <button
+              onClick={toggleTheme}
+              className={cn(
+                "p-2 rounded-lg transition-colors",
+                isDark ? "text-white/50 hover:text-white hover:bg-white/8" : "text-gray-500 hover:text-gray-900 hover:bg-black/5"
+              )}
+            >
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={theme}
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                </motion.div>
+              </AnimatePresence>
             </button>
 
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-pink-500 flex items-center justify-center text-white text-xs font-semibold shrink-0">
