@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
-  LayoutDashboard, Users, BarChart3, Settings,
+  LayoutDashboard, Activity, Database, CalendarDays, UserCheck, Umbrella, Timer, FileText,
   Bell, Search, Menu, X, Sun, Moon, LogOut, ChevronRight,
 } from "lucide-react"
 import { useUIStore } from "@/stores/useUIStore"
@@ -9,13 +9,54 @@ import { useAuthStore } from "@/stores/useAuthStore"
 import { useLogout, useCurrentUser } from "@/hooks/useAuth"
 import { cn } from "@/lib/utils"
 
-type NavItem = { label: string; icon: React.ElementType }
+type NavChild = { label: string }
+type NavItem = { label: string; icon: React.ElementType; children?: NavChild[] }
 
 const NAV: NavItem[] = [
-  { label: "Dashboard", icon: LayoutDashboard },
-  { label: "Users",     icon: Users },
-  { label: "Analytics", icon: BarChart3 },
-  { label: "Settings",  icon: Settings },
+  { label: "Dashboard",       icon: LayoutDashboard },
+  { label: "List Activities", icon: Activity },
+  {
+    label: "Master Data", icon: Database,
+    children: [
+      { label: "Users" },
+      { label: "Shift" },
+      { label: "Organik" },
+      { label: "Team" },
+    ],
+  },
+  {
+    label: "Jadwal", icon: CalendarDays,
+    children: [
+      { label: "List Jadwal" },
+      { label: "Pertukaran Jadwal" },
+      { label: "Perizinan" },
+    ],
+  },
+  {
+    label: "Presensi", icon: UserCheck,
+    children: [
+      { label: "Presensi Hari Ini" },
+      { label: "History Presensi" },
+      { label: "Terblokir" },
+      { label: "Rekap Keterlambatan" },
+    ],
+  },
+  {
+    label: "Cuti", icon: Umbrella,
+    children: [
+      { label: "Pengajuan Cuti" },
+      { label: "Cuti Unggah Jadwal" },
+      { label: "Sisa Cuti All Agent" },
+    ],
+  },
+  {
+    label: "Lembur", icon: Timer,
+    children: [
+      { label: "Lembur" },
+      { label: "Rekap Lembur" },
+    ],
+  },
+  { label: "SPPD", icon: FileText },
 ]
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -33,6 +74,15 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   // mobile: controls overlay drawer visibility
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [activeNav, setActiveNav] = useState("Dashboard")
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
+
+  const toggleGroup = (label: string) =>
+    setExpandedGroups(prev => {
+      const next = new Set(prev)
+      if (next.has(label)) next.delete(label)
+      else next.add(label)
+      return next
+    })
 
   // Detect viewport changes
   useEffect(() => {
@@ -88,41 +138,102 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* nav items */}
-      <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto overflow-x-hidden">
+      <nav className="flex-1 px-2 py-4 space-y-0.5 overflow-y-auto overflow-x-hidden">
         {NAV.map((item) => {
           const Icon = item.icon
-          const isActive = activeNav === item.label
+          const hasChildren = !!item.children?.length
+          const isExpanded = expandedGroups.has(item.label)
+          const isActive = !hasChildren && activeNav === item.label
+          const hasActiveChild = hasChildren && item.children!.some(c => c.label === activeNav)
+
           return (
-            <button
-              key={item.label}
-              onClick={() => { setActiveNav(item.label); if (isMobile) setDrawerOpen(false) }}
-              className={cn(
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150",
-                isActive
-                  ? "bg-violet-500/15 text-violet-400"
-                  : isDark
-                    ? "text-white/50 hover:text-white/80 hover:bg-white/5"
-                    : "text-gray-500 hover:text-gray-900 hover:bg-black/5"
-              )}
-            >
-              <Icon size={18} className="shrink-0" />
-              <AnimatePresence>
-                {(sidebarOpen || isMobile) && (
-                  <motion.span
-                    initial={{ opacity: 0, x: -6 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -6 }}
-                    transition={{ duration: 0.12 }}
-                    className="whitespace-nowrap"
-                  >
-                    {item.label}
-                  </motion.span>
+            <div key={item.label}>
+              {/* parent row */}
+              <button
+                onClick={() => {
+                  if (hasChildren) {
+                    if (!sidebarOpen && !isMobile) setSidebarOpen(true)
+                    toggleGroup(item.label)
+                  } else {
+                    setActiveNav(item.label)
+                    if (isMobile) setDrawerOpen(false)
+                  }
+                }}
+                className={cn(
+                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150",
+                  isActive || hasActiveChild
+                    ? "bg-violet-500/15 text-violet-400"
+                    : isDark
+                      ? "text-white/50 hover:text-white/80 hover:bg-white/5"
+                      : "text-gray-500 hover:text-gray-900 hover:bg-black/5"
                 )}
-              </AnimatePresence>
-              {isActive && (sidebarOpen || isMobile) && (
-                <ChevronRight size={14} className="ml-auto text-violet-400" />
+              >
+                <Icon size={18} className="shrink-0" />
+                <AnimatePresence>
+                  {(sidebarOpen || isMobile) && (
+                    <motion.span
+                      initial={{ opacity: 0, x: -6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -6 }}
+                      transition={{ duration: 0.12 }}
+                      className="flex-1 text-left whitespace-nowrap"
+                    >
+                      {item.label}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+                {/* chevron for group or active indicator for leaf */}
+                {(sidebarOpen || isMobile) && hasChildren && (
+                  <motion.div
+                    animate={{ rotate: isExpanded ? 90 : 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="ml-auto shrink-0"
+                  >
+                    <ChevronRight size={14} className={hasActiveChild ? "text-violet-400" : ""} />
+                  </motion.div>
+                )}
+                {(sidebarOpen || isMobile) && isActive && !hasChildren && (
+                  <ChevronRight size={14} className="ml-auto shrink-0 text-violet-400" />
+                )}
+              </button>
+
+              {/* sub-items */}
+              {hasChildren && (sidebarOpen || isMobile) && (
+                <AnimatePresence initial={false}>
+                  {isExpanded && (
+                    <motion.div
+                      key="submenu"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                      className="overflow-hidden"
+                    >
+                      <div className="ml-7 mt-0.5 mb-1 pl-3 border-l space-y-0.5"
+                        style={{ borderColor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)" }}
+                      >
+                        {item.children!.map(child => (
+                          <button
+                            key={child.label}
+                            onClick={() => { setActiveNav(child.label); if (isMobile) setDrawerOpen(false) }}
+                            className={cn(
+                              "w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150",
+                              activeNav === child.label
+                                ? "text-violet-400 bg-violet-500/10"
+                                : isDark
+                                  ? "text-white/40 hover:text-white/70 hover:bg-white/5"
+                                  : "text-gray-400 hover:text-gray-700 hover:bg-black/5"
+                            )}
+                          >
+                            {child.label}
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               )}
-            </button>
+            </div>
           )
         })}
       </nav>
