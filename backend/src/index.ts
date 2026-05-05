@@ -3,6 +3,7 @@ import { Elysia } from "elysia"
 import { cors } from "@elysiajs/cors"
 import pino from "pino"
 import { usersRoute } from "./routes/users"
+import { authRoute } from "./routes/auth"
 
 const logger = pino({ level: "info" })
 
@@ -15,6 +16,7 @@ const app = new Elysia()
     logger.error({ code, error }, "request error")
   })
   .get("/health", () => ({ status: "ok" }))
+  .use(authRoute)
   .use(usersRoute)
   .listen(Number(process.env.PORT) || 3000)
 
