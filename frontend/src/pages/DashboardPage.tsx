@@ -137,22 +137,20 @@ export function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* page title */}
-        <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <h1 className={cn("text-xl font-semibold", isDark ? "text-white" : "text-gray-900")}>
+        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
+          <h1 className={cn("text-lg sm:text-xl font-semibold", isDark ? "text-white" : "text-gray-900")}>
             Dashboard
           </h1>
-          <p className={cn("text-sm mt-0.5", isDark ? "text-white/40" : "text-gray-400")}>
+          <p className={cn("text-xs sm:text-sm mt-0.5", isDark ? "text-white/40" : "text-gray-400")}>
             Welcome back — here's what's happening today.
           </p>
         </motion.div>
 
         {/* ── STAT CARDS ─────────────────────────── */}
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+        {/* mobile: 1 col, tablet: 2 col, desktop: 4 col */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
           {STATS.map((stat, i) => {
             const Icon = stat.icon
             return (
@@ -161,12 +159,9 @@ export function DashboardPage() {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.06 }}
-                className={cn(
-                  "rounded-2xl border p-5 backdrop-blur-md",
-                  glass
-                )}
+                className={cn("rounded-2xl border p-4 sm:p-5 backdrop-blur-md", glass)}
               >
-                <div className="flex items-start justify-between mb-4">
+                <div className="flex items-start justify-between mb-3 sm:mb-4">
                   <div className={cn("p-2 rounded-xl", colorMap[stat.color])}>
                     <Icon size={16} />
                   </div>
@@ -178,7 +173,7 @@ export function DashboardPage() {
                     {stat.delta}
                   </span>
                 </div>
-                <p className={cn("text-2xl font-bold tracking-tight", isDark ? "text-white" : "text-gray-900")}>
+                <p className={cn("text-xl sm:text-2xl font-bold tracking-tight", isDark ? "text-white" : "text-gray-900")}>
                   {stat.value}
                 </p>
                 <p className={cn("text-xs mt-0.5", isDark ? "text-white/40" : "text-gray-400")}>
@@ -197,19 +192,19 @@ export function DashboardPage() {
           className={cn("rounded-2xl border backdrop-blur-md overflow-hidden", glass)}
         >
           {/* table header */}
-          <div className={cn("flex items-center justify-between px-5 py-4 border-b", isDark ? "border-white/[0.08]" : "border-black/[0.06]")}>
+          <div className={cn("flex items-center justify-between px-4 sm:px-5 py-3.5 sm:py-4 border-b", isDark ? "border-white/[0.08]" : "border-black/[0.06]")}>
             <div>
               <h2 className={cn("text-sm font-semibold", isDark ? "text-white" : "text-gray-900")}>Users</h2>
               <p className={cn("text-xs mt-0.5", isDark ? "text-white/40" : "text-gray-400")}>{MOCK_USERS.length} total members</p>
             </div>
-            <button className="px-3 py-1.5 rounded-lg bg-violet-500 hover:bg-violet-400 text-white text-xs font-medium transition-colors">
+            <button className="px-3 py-1.5 rounded-lg bg-violet-500 hover:bg-violet-400 text-white text-xs font-medium transition-colors whitespace-nowrap">
               + Add user
             </button>
           </div>
 
-          {/* table */}
+          {/* table — horizontal scroll on mobile */}
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[480px]">
               <thead>
                 {table.getHeaderGroups().map((hg) => (
                   <tr key={hg.id} className={cn("border-b", isDark ? "border-white/[0.06]" : "border-black/[0.05]")}>
@@ -218,9 +213,11 @@ export function DashboardPage() {
                         key={header.id}
                         onClick={header.column.getToggleSortingHandler()}
                         className={cn(
-                          "text-left px-5 py-3 text-xs font-medium select-none",
+                          "text-left px-4 sm:px-5 py-3 text-xs font-medium select-none",
                           isDark ? "text-white/35" : "text-gray-400",
-                          header.column.getCanSort() && "cursor-pointer hover:text-violet-400 transition-colors"
+                          header.column.getCanSort() && "cursor-pointer hover:text-violet-400 transition-colors",
+                          // "Joined" kolom disembunyikan di layar kecil
+                          header.id === "joined" && "hidden md:table-cell",
                         )}
                       >
                         <div className="flex items-center gap-1">
@@ -242,13 +239,17 @@ export function DashboardPage() {
                     transition={{ delay: 0.3 + i * 0.04 }}
                     className={cn(
                       "border-b last:border-0 transition-colors",
-                      isDark
-                        ? "border-white/[0.04] hover:bg-white/[0.03]"
-                        : "border-black/[0.04] hover:bg-black/[0.02]"
+                      isDark ? "border-white/[0.04] hover:bg-white/[0.03]" : "border-black/[0.04] hover:bg-black/[0.02]"
                     )}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-5 py-3.5">
+                      <td
+                        key={cell.id}
+                        className={cn(
+                          "px-4 sm:px-5 py-3 sm:py-3.5",
+                          cell.column.id === "joined" && "hidden md:table-cell",
+                        )}
+                      >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
                     ))}
@@ -259,7 +260,7 @@ export function DashboardPage() {
           </div>
 
           {/* pagination */}
-          <div className={cn("flex items-center justify-between px-5 py-3.5 border-t", isDark ? "border-white/[0.06]" : "border-black/[0.05]")}>
+          <div className={cn("flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 border-t", isDark ? "border-white/[0.06]" : "border-black/[0.05]")}>
             <span className={cn("text-xs", isDark ? "text-white/30" : "text-gray-400")}>
               Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
             </span>
@@ -267,23 +268,15 @@ export function DashboardPage() {
               <button
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
-                className={cn(
-                  "p-1.5 rounded-lg transition-colors disabled:opacity-30",
-                  isDark ? "text-white/50 hover:text-white hover:bg-white/8" : "text-gray-500 hover:text-gray-900 hover:bg-black/5"
-                )}
-              >
-                <ChevronLeft size={15} />
-              </button>
+                className={cn("p-1.5 rounded-lg transition-colors disabled:opacity-30",
+                  isDark ? "text-white/50 hover:text-white hover:bg-white/8" : "text-gray-500 hover:text-gray-900 hover:bg-black/5")}
+              ><ChevronLeft size={15} /></button>
               <button
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
-                className={cn(
-                  "p-1.5 rounded-lg transition-colors disabled:opacity-30",
-                  isDark ? "text-white/50 hover:text-white hover:bg-white/8" : "text-gray-500 hover:text-gray-900 hover:bg-black/5"
-                )}
-              >
-                <ChevronRight size={15} />
-              </button>
+                className={cn("p-1.5 rounded-lg transition-colors disabled:opacity-30",
+                  isDark ? "text-white/50 hover:text-white hover:bg-white/8" : "text-gray-500 hover:text-gray-900 hover:bg-black/5")}
+              ><ChevronRight size={15} /></button>
             </div>
           </div>
         </motion.div>
