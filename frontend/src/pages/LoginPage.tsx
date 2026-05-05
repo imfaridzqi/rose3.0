@@ -68,7 +68,7 @@ export function LoginPage() {
       />
 
       {/* ── NAVBAR ─────────────────────────────────── */}
-      <nav className="relative z-10 flex items-center justify-between px-6 py-5">
+      <nav className="relative z-10 flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5">
         <motion.div
           initial={{ opacity: 0, x: -12 }}
           animate={{ opacity: 1, x: 0 }}
@@ -115,13 +115,13 @@ export function LoginPage() {
       </nav>
 
       {/* ── LOGIN CARD ─────────────────────────────── */}
-      <main className="relative z-10 flex-1 flex items-center justify-center px-4 -mt-8">
+      <main className="relative z-10 flex-1 flex items-center justify-center px-4 sm:px-6 -mt-6 sm:-mt-8">
         <motion.div
           initial={{ opacity: 0, y: 28, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className={cn(
-            "w-full max-w-sm rounded-2xl p-8 backdrop-blur-2xl border shadow-2xl",
+            "w-full max-w-sm rounded-2xl p-6 sm:p-8 backdrop-blur-2xl border shadow-2xl",
             isDark
               ? "bg-white/5 border-white/10"
               : "bg-white/50 border-white/80"
@@ -137,9 +137,9 @@ export function LoginPage() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="mb-7 text-center"
+            className="mb-6 sm:mb-7 text-center"
           >
-            <h1 className={cn("text-3xl font-bold tracking-tight mb-1", isDark ? "text-white" : "text-gray-900")}>
+            <h1 className={cn("text-2xl sm:text-3xl font-bold tracking-tight mb-1", isDark ? "text-white" : "text-gray-900")}>
               rose<span className="text-violet-400">3.0</span>
             </h1>
             <p className={cn("text-xs", isDark ? "text-white/40" : "text-gray-500")}>
