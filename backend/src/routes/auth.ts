@@ -19,12 +19,12 @@ export const authRoute = new Elysia({ prefix: "/auth" })
   )
   .post(
     "/register",
-    async ({ body, error }) => {
+    async ({ body, set }) => {
       const [existingNik] = await db.select().from(users).where(eq(users.nik, body.nik))
-      if (existingNik) return error(409, { message: "NIK sudah terdaftar" })
+      if (existingNik) { set.status = 409; return { message: "NIK sudah terdaftar" } }
 
       const [existingEmail] = await db.select().from(users).where(eq(users.email, body.email))
-      if (existingEmail) return error(409, { message: "Email sudah terdaftar" })
+      if (existingEmail) { set.status = 409; return { message: "Email sudah terdaftar" } }
 
       const hashed = await Bun.password.hash(body.password)
       await db.insert(users).values({ nik: body.nik, name: body.name, email: body.email, password: hashed })
@@ -43,12 +43,12 @@ export const authRoute = new Elysia({ prefix: "/auth" })
   )
   .post(
     "/login",
-    async ({ body, jwt: jwtInstance, error }) => {
+    async ({ body, jwt: jwtInstance, set }) => {
       const [user] = await db.select().from(users).where(eq(users.nik, body.nik))
-      if (!user) return error(401, { message: "NIK atau password salah" })
+      if (!user) { set.status = 401; return { message: "NIK atau password salah" } }
 
       const valid = await Bun.password.verify(body.password, user.password)
-      if (!valid) return error(401, { message: "NIK atau password salah" })
+      if (!valid) { set.status = 401; return { message: "NIK atau password salah" } }
 
       const token = await jwtInstance.sign({
         sub: String(user.id),

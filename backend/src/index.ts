@@ -13,7 +13,7 @@ const app = new Elysia()
     logger.info({ method: request.method, url: request.url }, "incoming request")
   })
   .onError(({ error, code }) => {
-    logger.error({ code, error }, "request error")
+    logger.error({ code, message: error instanceof Error ? error.message : String(error) }, "request error")
   })
   .get("/health", () => ({ status: "ok" }))
   .use(authRoute)
